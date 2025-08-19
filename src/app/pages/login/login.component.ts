@@ -24,9 +24,21 @@ export class LoginComponent {
   }
 
   submit() {
-    this.auth.login({ username: this.username, password: this.password }).subscribe({
-      next: () => this.router.navigate(["/dashboard"]),
-      error: (err) => (this.error = err?.error?.detail ?? "Login failed"),
-    })
-  }
+  // first get CSRF cookie
+  this.auth.csrf().subscribe({
+    next: () => {
+      // then try login
+      this.auth.login({ username: this.username, password: this.password }).subscribe({
+        next: () => this.router.navigate(['/dashboard']),
+        error: (err) => {
+          this.error = err?.error?.detail ?? 'Login failed'
+        }
+      })
+    },
+    error: () => {
+      this.error = 'Failed to get CSRF token'
+    }
+  })
+}
+
 }
