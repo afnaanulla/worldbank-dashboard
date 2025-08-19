@@ -41,12 +41,21 @@ export class AuthService {
   }
 
   login(dto: { username: string; password: string }) {
-    return this.http.post<{ username: string; email: string }>(
-      `${this.base}/auth/login/`,
-      dto,
-      { headers: this.headers, withCredentials: true }
-    );
-  }
+  const token = this.getCSRFToken(); // read csrf token from cookie
+  return this.http.post<{username:string;email:string}>(
+    `${this.base}/auth/login/`,
+    dto,
+    {
+      withCredentials: true,
+      headers: { "X-CSRFToken": token || "" },
+    }
+  );
+}
+getCSRFToken() {
+  const match = document.cookie.match(/csrftoken=([\w-]+)/);
+  return match ? match[1] : null;
+}
+
 
   logout() {
     return this.http.post(
