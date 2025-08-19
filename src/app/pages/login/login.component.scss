@@ -1,0 +1,326 @@
+scss
+/* -------------------------------------------------------------------------
+   login.component.scss
+   -------------------------------------------------------------------------
+
+   • Uses the same colour‑token system as the register page
+   • Responsive, animated, and ready for a dark‑mode toggle
+   • No external dependencies – just pure SCSS
+   ------------------------------------------------------------------------- */
+
+
+/* -------------------------------------------------
+   1️⃣  Global tokens (fallbacks for a stand‑alone demo)
+   ------------------------------------------------- */
+:root {
+  --primary:               #0891b2;               /* teal‑600 */
+  --primary-foreground:    #ffffff;
+  --foreground:            #1f2937;               /* gray‑800 */
+  --muted-foreground:      #64748b;               /* gray‑500 */
+  --border:                #e2e8f0;               /* gray‑200 */
+  --input:                 #ffffff;
+  --ring:                  rgba(8, 145, 178, .3);
+  --radius:                .75rem;
+  --destructive:           #dc2626;               /* red‑600 */
+}
+
+/* -------------------------------------------------
+   2️⃣  Layout – centered card
+   ------------------------------------------------- */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  padding: 1rem;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont,
+                "Segoe UI", Roboto, sans-serif;
+}
+
+/* -------------------------------------------------------------------------
+   3️⃣  Card – frosted glass effect + entrance animation
+   ------------------------------------------------------------------------- */
+.login-card {
+  background: rgba(255, 255, 255, .95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 1rem;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+  animation: slideUp 0.6s ease-out;
+}
+
+/* -------------------------------------------------
+   4️⃣  Entrance animation (same as register)
+   ------------------------------------------------- */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------
+   5️⃣  Header – logo + titles
+   ------------------------------------------------- */
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Logo section (shared with register) */
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Icon background uses the primary colour */
+.logo-icon {
+  width: 2rem;
+  height: 2rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Brand text */
+.logo-text {
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+/* Main title */
+.login-title {
+  font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  font-size: 1.875rem;
+  color: var(--foreground);
+  margin: 0 0 .5rem;
+  line-height: 1.2;
+}
+
+/* Sub‑title */
+.login-subtitle {
+  color: var(--muted-foreground);
+  font-size: .875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------
+   6️⃣  Form layout & fields
+   ------------------------------------------------- */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Each group contains label + input */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+/* Labels (with optional icon) */
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 500;
+  font-size: .875rem;
+  color: var(--foreground);
+}
+
+/* Icon inside label (if you ever add one) */
+.label-icon {
+  color: var(--muted-foreground);
+}
+
+/* Input wrapper – positions the left icon */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .input-icon {
+    position: absolute;
+    left: .95rem;
+    color: var(--muted-foreground);
+    pointer-events: none;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: .875rem .95rem .875rem 2.6rem; /* room for icon */
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--input);
+    color: var(--foreground);
+    font-size: .875rem;
+    transition: all .2s ease;
+    outline: none;
+
+    &:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    &::placeholder {
+      color: var(--muted-foreground);
+    }
+  }
+}
+
+/* -------------------------------------------------
+   7️⃣  Error message (same styling as register)
+   ------------------------------------------------- */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  background: rgba(220, 38, 38, .1);
+  border: 1px solid rgba(220, 38, 38, .2);
+  border-radius: var(--radius);
+  color: var(--destructive);
+  font-size: .875rem;
+
+  .error-icon {
+    flex-shrink: 0;
+    color: var(--destructive);
+  }
+}
+
+/* -------------------------------------------------
+   8️⃣  Submit button
+   ------------------------------------------------- */
+.login-button {
+  width: 100%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: var(--radius);
+  padding: .875rem 1rem;
+  font-weight: 600;
+  font-size: .875rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  outline: none;
+
+  .button-icon {
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #0e7490;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -5px rgba(8,145,178,.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+}
+
+/* -------------------------------------------------
+   9️⃣  Footer – link to registration page
+   ------------------------------------------------- */
+.login-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.register-text {
+  color: var(--muted-foreground);
+  font-size: .875rem;
+  margin: 0;
+}
+
+.register-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .2s ease;
+
+  &:hover {
+    color: #0e7490;
+    text-decoration: underline;
+  }
+}
+
+/* -------------------------------------------------
+   🔶  Responsive tweaks (mirrors the register media query)
+   ------------------------------------------------- */
+@media (max-width: 480px) {
+  .login-container {
+    padding: .5rem;
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* -------------------------------------------------
+   🌓  Optional dark‑mode support (adds .dark class to <body>)
+   ------------------------------------------------- */
+body.dark {
+  --primary:               #34d399;   /* teal‑400 for dark mode */
+  --foreground:            #f1f5f9;
+  --muted-foreground:      #cbd5e1;
+  --border:                #334155;
+  --input:                 #1e293b;
+  --ring:                  rgba(52,211,153,.3);
+
+  .login-card {
+    background: rgba(30,41,59,.85);
+    border-color: rgba(255,255,255,.1);
+  }
+
+  .form-input,
+  .login-button {
+    background: var(--input);
+    color: var(--foreground);
+  }
+
+  .login-button {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}

@@ -1,0 +1,142 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1 class="dashboard-title">
+        <span class="title-icon">🌍</span>
+        World Bank Dashboard
+      </h1>
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- Controls Section -->
+  <section class="controls-section">
+    <div class="controls-card">
+      <h2 class="controls-title">Data Filters</h2>
+      <div class="controls-grid">
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <select class="form-select" [(ngModel)]="country" (change)="load()">
+            <option value="IN">🇮🇳 India</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="CN">🇨🇳 China</option>
+            <option value="BR">🇧🇷 Brazil</option>
+            <option value="ZA">🇿🇦 South Africa</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Start Year</label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="start"
+            (change)="load()"
+            min="1960"
+            max="2025"
+            placeholder="2000"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">End Year</label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="end"
+            (change)="load()"
+            min="1960"
+            max="2025"
+            placeholder="2023"
+          />
+        </div>
+
+        <div class="form-group indicators-group">
+          <label class="form-label">Economic Indicators</label>
+          <select class="form-select indicators-select" multiple [(ngModel)]="codes" (change)="load()">
+            <option value="NY.GDP.MKTP.CD">💰 GDP (current US$)</option>
+            <option value="SP.POP.TOTL">👥 Population, total</option>
+            <option value="NY.GDP.PCAP.CD">💵 GDP per capita (US$)</option>
+            <option value="NE.EXP.GNFS.ZS">📈 Exports of goods & services (% of GDP)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Debug Section (styled as info card) -->
+  <section class="debug-section" *ngIf="lineData.datasets?.length || barData.datasets?.length">
+    <div class="debug-card">
+      <h3 class="debug-title">📊 Data Summary</h3>
+      <div class="debug-grid">
+        <div class="debug-item">
+          <span class="debug-label">Selected Indicators:</span>
+          <span class="debug-value">{{codes.length}}</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">Line Chart Series:</span>
+          <span class="debug-value">{{lineData.datasets?.length || 0}}</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">Bar Chart Series:</span>
+          <span class="debug-value">{{barData.datasets?.length || 0}}</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">Data Points:</span>
+          <span class="debug-value">{{lineData.labels?.length || 0}}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts Section -->
+  <section class="charts-section">
+    <div class="charts-grid">
+      <!-- Line Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">
+            <span class="chart-icon">📈</span>
+            {{lineLabel}}
+          </h3>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="lineData"
+            [type]="lineType"
+            [options]="lineOptions">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">
+            <span class="chart-icon">📊</span>
+            {{barLabel}}
+          </h3>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="barData"
+            [type]="barType"
+            [options]="barOptions">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error Section -->
+  <div class="error-card" *ngIf="error">
+    <div class="error-content">
+      <span class="error-icon">⚠️</span>
+      <span class="error-message">{{error}}</span>
+    </div>
+  </div>
+</div>
