@@ -1,8 +1,8 @@
 import { Component } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormsModule } from "@angular/forms"
-import { Router, RouterModule } from "@angular/router"  // ✅ Remove 'type' keyword
-import { AuthService } from "../../services/auth.service"  // ✅ Remove 'type' keyword
+import { Router, RouterModule } from "@angular/router"
+import { AuthService } from "../../services/auth.service"
 
 @Component({
   standalone: true,
@@ -20,7 +20,6 @@ export class LoginComponent {
     private auth: AuthService,
     private router: Router,
   ) {
-    // Ensure CSRF cookie exists before first POST
     this.auth.csrf().subscribe()
   }
 
