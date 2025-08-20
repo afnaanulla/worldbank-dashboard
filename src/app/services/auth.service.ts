@@ -14,14 +14,17 @@ export class AuthService {
   // Get CSRF token and set the cookie
   csrf(): Observable<any> {
     return this.http
-      .get<any>(`${this.base}/auth/csrf/`, {
+      .get<{ detail: string; csrfToken: string }>(`${this.base}/auth/csrf/`, {
         withCredentials: true,
         observe: 'response'
       })
       .pipe(
-        tap((response: any) => {
+        tap((response) => {
+          const body = response.body;
+          if (body?.csrfToken) {
+            document.cookie = `csrftoken=${body.csrfToken}; path=/`;
+          }
           console.log('CSRF response:', response);
-          // The server sets the cookie, so we don't need to do anything else here
         }),
         catchError(this.handleError)
       );
