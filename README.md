@@ -1,4 +1,4 @@
-#WorldBank Dashboard 
+# WorldBank Dashboard 
 ## Angular Frontend
 
 This is the **Angular 17 frontend** for the Django API backend.  
