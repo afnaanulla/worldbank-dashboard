@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   standalone: true,
@@ -17,7 +18,11 @@ export class LoginComponent implements OnInit {
   error = "";
   csrfLoaded = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private cookieService: CookieService
+  ) {}
 
   ngOnInit() {
     // Get CSRF cookie once when component loads
@@ -39,9 +44,21 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    // Check if we have a CSRF token
+    const token = this.cookieService.get('csrftoken');
+    if (!token) {
+      this.error = "CSRF token missing. Please refresh the page.";
+      return;
+    }
+
     this.auth.login({ username: this.username, password: this.password }).subscribe({
-      next: () => this.router.navigate(["/dashboard"]),
+      next: (response) => {
+        console.log('Login successful, navigating to dashboard');
+        // Just navigate to dashboard without checking user session
+        this.router.navigate(["/dashboard"]);
+      },
       error: (err) => {
+        console.error('Login failed:', err);
         this.error = err?.error?.detail ?? "Login failed";
       },
     });

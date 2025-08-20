@@ -3,12 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-
-// Mock AuthService interface for demonstration
-interface AuthService {
-  csrf(): any;
-  register(data: { username: string; email: string; password: string }): any;
-}
+import { AuthService } from '../../services/auth.service'; // Make sure this is imported
+import { CookieService } from 'ngx-cookie-service'; // Import CookieService
 
 @Component({
   standalone: true,
@@ -19,17 +15,15 @@ interface AuthService {
 })
 export class RegisterComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
-
   // Form fields
   username = '';
   email = '';
   password = '';
-
   // UI state
   error = '';
   isLoading = false;
   passwordVisible = false;
-
+  csrfLoaded = false;
   // Form validation
   formErrors = {
     username: '',
@@ -38,10 +32,21 @@ export class RegisterComponent implements OnDestroy {
   };
 
   constructor(
-    private router: Router
-    // private auth: AuthService // Uncomment when service is available
+    private router: Router,
+    private auth: AuthService, // Inject AuthService
+    private cookieService: CookieService // Inject CookieService
   ) {
-    // this.auth.csrf().pipe(takeUntil(this.destroy$)).subscribe();
+    // Get CSRF token when component loads
+    this.auth.csrf().pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.csrfLoaded = true;
+        console.log("CSRF cookie set for registration");
+      },
+      error: (err) => {
+        this.error = "Failed to get CSRF token";
+        console.error(err);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -64,7 +69,6 @@ export class RegisterComponent implements OnDestroy {
           this.formErrors.username = '';
         }
         break;
-
       case 'email':
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!this.email) {
@@ -75,7 +79,6 @@ export class RegisterComponent implements OnDestroy {
           this.formErrors.email = '';
         }
         break;
-
       case 'password':
         if (!this.password) {
           this.formErrors.password = 'Password is required';
@@ -93,28 +96,32 @@ export class RegisterComponent implements OnDestroy {
              !this.formErrors.username && !this.formErrors.email && !this.formErrors.password);
   }
 
-  async submit(): Promise<void> {
-    if (!this.isFormValid() || this.isLoading) return;
+  submit(): void {
+    if (!this.isFormValid() || this.isLoading || !this.csrfLoaded) return;
+
+    // Check if we have a CSRF token
+    const token = this.cookieService.get('csrftoken');
+    if (!token) {
+      this.error = "CSRF token missing. Please refresh the page.";
+      return;
+    }
 
     this.isLoading = true;
     this.error = '';
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Mock success - replace with actual auth service call
-      // await this.auth.register({
-      //   username: this.username,
-      //   email: this.email,
-      //   password: this.password
-      // }).toPromise();
-
-      await this.router.navigate(['/login']);
-    } catch (err: any) {
-      this.error = err?.error?.detail ?? 'Registration failed. Please try again.';
-    } finally {
-      this.isLoading = false;
-    }
+    // Use AuthService to register
+    this.auth.register({
+      username: this.username,
+      email: this.email,
+      password: this.password
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.error = err?.error?.detail ?? 'Registration failed. Please try again.';
+        this.isLoading = false;
+      }
+    });
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError, Observable } from 'rxjs';
@@ -7,13 +7,11 @@ import { throwError, Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private base = environment.apiBase;
-  private csrfToken: string | null = null;
-
   user: { username: string; email: string } | null = null;
 
   constructor(private http: HttpClient) {}
 
-  // Get CSRF token and store it
+  // Get CSRF token and set the cookie
   csrf(): Observable<any> {
     return this.http
       .get<any>(`${this.base}/auth/csrf/`, {
@@ -23,27 +21,10 @@ export class AuthService {
       .pipe(
         tap((response: any) => {
           console.log('CSRF response:', response);
-          // Extract CSRF token from response or cookie
-          const body = response.body || response;
-          this.csrfToken = body.csrfToken || this.getCookie('csrftoken');
-          console.log('CSRF token set:', this.csrfToken);
+          // The server sets the cookie, so we don't need to do anything else here
         }),
         catchError(this.handleError)
       );
-  }
-
-  private get headers(): HttpHeaders {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    const token = this.csrfToken || this.getCookie('csrftoken');
-    if (token) {
-      headers = headers.set('X-CSRFToken', token);
-    }
-
-    console.log('Request headers:', headers.keys());
-    return headers;
   }
 
   register(dto: { username: string; password: string; email?: string }): Observable<any> {
@@ -51,8 +32,8 @@ export class AuthService {
       `${this.base}/auth/register/`,
       dto,
       {
-        headers: this.headers,
         withCredentials: true
+        // No need to set headers here, the interceptor will handle CSRF
       }
     ).pipe(
       tap(response => console.log('Register response:', response)),
@@ -61,18 +42,12 @@ export class AuthService {
   }
 
   login(dto: { username: string; password: string }): Observable<{username: string; email: string}> {
-    const token = this.getCookie('csrftoken');
-    console.log('Login attempt with CSRF token:', token);
-
     return this.http.post<{username: string; email: string}>(
       `${this.base}/auth/login/`,
       dto,
       {
-        withCredentials: true,
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          'X-CSRFToken': token || ''
-        })
+        withCredentials: true
+        // No need to set headers here, the interceptor will handle CSRF
       }
     ).pipe(
       tap(response => {
@@ -88,54 +63,37 @@ export class AuthService {
       `${this.base}/auth/logout/`,
       {},
       {
-        headers: this.headers,
         withCredentials: true
+        // No need to set headers here, the interceptor will handle CSRF
       }
     ).pipe(
       tap(() => {
         this.user = null;
-        this.csrfToken = null;
       }),
       catchError(this.handleError)
     );
   }
 
   me(): Observable<{ authenticated: boolean; username: string; email: string }> {
-    return this.http.get<{ authenticated: boolean; username: string; email: string }>(
-      `${this.base}/auth/user/`,
-      {
-        withCredentials: true,
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json'
-        })
-      }
-    ).pipe(
-      tap(response => {
-        console.log('User info response:', response);
-        if (response.authenticated) {
-          this.user = { username: response.username, email: response.email };
-        }
-      }),
-      catchError(this.handleError)
-    );
-  }
-
-  // Helper to read CSRF cookie
-  private getCookie(name: string): string | null {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    if (match) {
-      console.log(`Cookie ${name} found:`, match[2]);
-      return match[2];
+  return this.http.get<{ authenticated: boolean; username: string; email: string }>(
+    `${this.base}/auth/user/`,
+    {
+      withCredentials: true
     }
-    console.log(`Cookie ${name} not found`);
-    return null;
-  }
+  ).pipe(
+    tap(response => {
+      console.log('User info response:', response);
+      if (response.authenticated) {
+        this.user = { username: response.username, email: response.email };
+      }
+    }),
+    catchError(this.handleError)
+  );
+}
 
   private handleError = (error: HttpErrorResponse) => {
     console.error('HTTP Error:', error);
-
     let errorMessage = 'An error occurred';
-
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -149,7 +107,6 @@ export class AuthService {
         errorMessage = `Server error: ${error.status} ${error.statusText}`;
       }
     }
-
     return throwError(() => ({ error: { detail: errorMessage } }));
   };
 }

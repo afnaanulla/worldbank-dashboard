@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   // Update with your actual Render backend URL
-  apiBase: 'https://djangoo-1wag.onrender.com/api'
+  apiBase: 'http://127.0.0.1:8000/api'
 };

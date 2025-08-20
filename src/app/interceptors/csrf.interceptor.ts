@@ -8,13 +8,17 @@ export class CsrfInterceptor implements HttpInterceptor {
   constructor(private cookieService: CookieService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const csrftoken = this.cookieService.get('csrftoken');
+    // Clone the request and add withCredentials
     const withCreds = req.clone({ withCredentials: true });
 
-    if (csrftoken && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-      return next.handle(
-        withCreds.clone({ setHeaders: { 'X-CSRFToken': csrftoken } })
-      );
+    // For POST, PUT, PATCH, DELETE requests, add CSRF token
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+      const csrftoken = this.cookieService.get('csrftoken');
+      if (csrftoken) {
+        return next.handle(
+          withCreds.clone({ setHeaders: { 'X-CSRFToken': csrftoken } })
+        );
+      }
     }
 
     return next.handle(withCreds);
