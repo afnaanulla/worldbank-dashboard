@@ -1,59 +1,102 @@
-# WorldbankDashboard
+#WorldBank Dashboard 
+## Angular Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.13.
+This is the **Angular 17 frontend** for the Django API backend.  
+It provides the user interface for authentication and data visualization, communicating with the backend via REST API.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Features
+- User authentication (register, login, logout).
+- Fetch and display data from Django API.
+- Responsive design with Angular.
+- CSRF token management for secure requests.
+- Deployed separately from the backend (can connect via API base URL).
 
-```bash
+---
+
+## 🛠 Tech Stack
+- **Frontend Framework:** Angular 17  
+- **Styling:** CSS / SCSS  
+- **HTTP Client:** Angular `HttpClientModule`  
+- **Backend (API):** Django REST Framework  
+
+---
+
+## 📂 Project Structure
+```
+src/
+│── app/
+│ ├── auth/
+│ │ ├── login/ # Login component
+│ │ ├── register/ # Register component
+│ ├── welcome/ # Welcome/Dashboard
+│ ├── services/ # API & Auth services
+│ ├── app-routing.module.ts
+│ ├── app.component.ts
+│ ├── app.module.ts
+│── assets/
+│── environments/
+│ ├── environment.ts # Development config
+│ ├── environment.prod.ts # Production config
+```
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the repository
+```
+git clone https://github.com/your-username/angular-frontend.git
+cd angular-frontend
+```
+
+2. Install dependencies
+```
+npm install
+```
+3. Run the development server
+```
 ng serve
 ```
+`Frontend runs at: http://localhost:4200`
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔗 API Integration
+Set the backend API base URL in src/environments/environment.ts:
 
-## Code scaffolding
+typescript:
+```
+export const environment = {
+  production: false,
+  apiBase: "http://127.0.0.1:8000/api"
+};
+```
+For production, update environment.prod.ts with your deployed Django API URL.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🔑 Features in UI
+- Register
+- User fills in username & password.
 
-```bash
-ng generate component component-name
+#### Data sent to:
+- `POST /api/auth/register/`
+
+- LoginUser logs in via:
+`POST /api/auth/login/`
+
+- Stores session & CSRF token for future requests.
+
+##### Dashboard Fetches protected data:
+
+`GET/api/indicators/country=in&codes=ny.gdp.mktp.cd,sp.pop.totl&start=2000&end=2023`
+
+##### LogoutClears session and calls `POST /api/auth/logout/`.
+---
+
+### 📦 Deployment
+Build the project:
+```
+ng build --configuration production
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- The output is stored in the dist/ folder.
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Can be deployed on Netlify, Vercel, or Render (static hosting)
